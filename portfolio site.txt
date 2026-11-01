@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alex Vance — Creative Technologist & Full-Stack Architect</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            cyan: '#06b6d4',
+                            purple: '#a855f7',
+                            emerald: '#10b981',
+                            dark: '#0B0F17',
+                            card: 'rgba(17, 24, 39, 0.7)',
+                            border: 'rgba(255, 255, 255, 0.08)'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'JetBrains Mono', 'monospace']
+                    },
+                    animation: {
+                        'pulse-glow': 'pulseGlow 3s infinite alternate',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        pulseGlow: {
+                            '0%': { boxShadow: '0 0 15px rgba(6, 182, 212, 0.2)' },
+                            '100%': { boxShadow: '0 0 35px rgba(168, 85, 247, 0.5)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #030712;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism Styles */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-panel-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel-hover:hover {
+            border-color: rgba(6, 182, 212, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px -10px rgba(6, 182, 212, 0.2);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #030712;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #06b6d4;
+        }
+
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #38bdf8 0%, #a855f7 50%, #34d399 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Terminal Prompt Custom Glow */
+        .terminal-glow {
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.15);
+        }
+
+        /* Light Theme Overrides */
+        html.light {
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        html.light .glass-panel {
+            background: rgba(255, 255, 255, 0.75);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+        html.light ::-webkit-scrollbar-track { background: #f1f5f9; }
+        html.light ::-webkit-scrollbar-thumb { background: #cbd5e1; }
+
+        /* High Contrast Theme Overrides */
+        html.contrast {
+            background-color: #000000;
+            color: #ffffff;
+        }
+        html.contrast .glass-panel {
+            background: #000000;
+            border: 2px solid #00ffcc;
+            box-shadow: none;
+        }
+        html.contrast .gradient-text {
+            background: none;
+            -webkit-text-fill-color: #00ffcc;
+        }
+
+        /* Perspective Tilt Card Container */
+        .tilt-card-wrapper {
+            perspective: 1000px;
+        }
+        .tilt-card {
+            transition: transform 0.1s ease-out, box-shadow 0.3s ease;
+            transform-style: preserve-3d;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen selection:bg-cyan-500 selection:text-black">
+
+    <!-- Dynamic Animated Particle Canvas Background -->
+    <canvas id="bg-canvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+
+    <!-- Top Progress Indicator Bar -->
+    <div id="scroll-progress" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-cyan-500 via-purple-500 to-emerald-400 z-50 transition-all duration-75" style="width: 0%"></div>
+
+    <!-- Main Layout Grid -->
+    <div class="relative z-10 flex flex-col md:flex-row min-h-screen">
+
+        <!-- Sidebar Navigation (Desktop) / Header (Mobile) -->
+        <header class="md:w-64 lg:w-72 md:fixed md:h-screen glass-panel flex flex-col justify-between p-6 z-40 border-r border-slate-800/80">
+            <div>
+                <!-- Brand / Logo -->
+                <div class="flex items-center justify-between mb-8">
+                    <a href="#hero" class="flex items-center gap-3 group">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center text-white font-bold font-mono text-xl shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform">
+                            AV
+                        </div>
+                        <div>
+                            <h1 class="font-bold text-lg leading-tight tracking-wide">Alex Vance</h1>
+                            <p class="text-xs text-slate-400 font-mono">dev_architect.v2.4</p>
+                        </div>
+                    </a>
+                    
+                    <!-- Mobile Menu Button -->
+                    <button id="mobile-menu-btn" class="md:hidden p-2 text-slate-400 hover:text-white" aria-label="Toggle Navigation Menu">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Live Status Badge -->
+                <div class="mb-8 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2.5 text-xs text-emerald-400 font-medium">
+                    <span class="relative flex h-2.5 w-2.5">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                    </span>
+                    <span>Available for contracts & roles</span>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav id="nav-menu" class="hidden md:flex flex-col gap-1.5 text-sm font-medium">
+                    <a href="#hero" class="nav-link flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-slate-800/50 transition-all">
+                        <i class="fa-solid fa-house w-5 text-slate-400"></i> Overview
+                    </a>
+                    <a href="#skills" class="nav-link flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-slate-800/50 transition-all">
+                        <i class="fa-solid fa-code w-5 text-slate-400"></i> Tech Matrix
+                    </a>
+                    <a href="#projects" class="nav-link flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-slate-800/50 transition-all">
+                        <i class="fa-solid fa-layer-group w-5 text-slate-400"></i> Featured Work
+                    </a>
+                    <a href="#experience" class="nav-link flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-slate-800/50 transition-all">
+                        <i class="fa-solid fa-timeline w-5 text-slate-400"></i> Timeline
+                    </a>
+                    <a href="#terminal" class="nav-link flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-slate-800/50 transition-all">
+                        <i class="fa-solid fa-terminal w-5 text-slate-400"></i> CLI Playground
+                    </a>
+                    <a href="#testimonials" class="nav-link flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-slate-800/50 transition-all">
+                        <i class="fa-solid fa-quote-right w-5 text-slate-400"></i> Endorsements
+                    </a>
+                    <a href="#contact" class="nav-link flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-slate-800/50 transition-all">
+                        <i class="fa-solid fa-envelope w-5 text-slate-400"></i> Get In Touch
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Controls (Theme & Sound) -->
+            <div class="pt-6 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                <!-- Theme Select Buttons -->
+                <div class="flex items-center gap-1 bg-slate-900/80 p-1 rounded-lg border border-slate-800">
+                    <button id="theme-dark" onclick="setTheme('dark')" class="p-2 rounded-md text-xs text-cyan-400 hover:bg-slate-800 transition" title="Dark Mode"><i class="fa-solid fa-moon"></i></button>
+                    <button id="theme-light" onclick="setTheme('light')" class="p-2 rounded-md text-xs text-slate-400 hover:bg-slate-800 transition" title="Light Mode"><i class="fa-solid fa-sun"></i></button>
+                    <button id="theme-contrast" onclick="setTheme('contrast')" class="p-2 rounded-md text-xs text-slate-400 hover:bg-slate-800 transition" title="High Contrast Mode"><i class="fa-solid fa-circle-half-stroke"></i></button>
+                </div>
+
+                <!-- Sound Toggle -->
+                <button id="sound-toggle" class="p-2.5 rounded-lg bg-slate-900/80 text-slate-400 hover:text-cyan-400 border border-slate-800 text-xs flex items-center gap-1.5 transition" title="Toggle UI Sound Effects">
+                    <i class="fa-solid fa-volume-xmark" id="sound-icon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Scrollable Content Region -->
+        <main class="flex-1 md:ml-64 lg:ml-72 p-6 lg:p-12 space-y-24 max-w-6xl">
+
+            <!-- SECTION 1: HERO -->
+            <section id="hero" class="min-h-[85vh] flex flex-col justify-center pt-8 md:pt-0">
+                <div class="grid md:grid-cols-12 gap-8 items-center">
+                    
+                    <div class="md:col-span-7 space-y-6">
+                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-panel text-xs text-cyan-400 font-mono tracking-wider">
+                            <i class="fa-solid fa-terminal"></i> HELLO, WORLD!
+                        </div>
+
+                        <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-none">
+                            I design & build <br>
+                            <span class="gradient-text">digital realities.</span>
+                        </h1>
+
+                        <!-- Dynamic Typing Role -->
+                        <div class="text-lg sm:text-xl text-slate-300 font-mono h-8 flex items-center gap-2">
+                            <span>I am a</span>
+                            <span id="typing-text" class="text-cyan-400 font-bold border-r-2 border-cyan-400 pr-1 animate-pulse"></span>
+                        </div>
+
+                        <p class="text-slate-400 leading-relaxed text-sm sm:text-base max-w-xl">
+                            Senior Full-Stack Architect with 8+ years of experience crafting high-performance web applications, scalable cloud infrastructure, and pixel-perfect design systems.
+                        </p>
+
+                        <!-- CTA Actions -->
+                        <div class="flex flex-wrap gap-4 pt-2">
+                            <a href="#projects" class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-medium text-sm hover:shadow-lg hover:shadow-cyan-500/25 hover:scale-[1.02] transition-all flex items-center gap-2 group">
+                                View Work <i class="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
+                            </a>
+                            <a href="#contact" class="px-6 py-3.5 rounded-xl glass-panel text-slate-200 font-medium text-sm hover:bg-slate-800/80 transition-all flex items-center gap-2">
+                                Get In Touch
+                            </a>
+                            <button onclick="downloadResume()" class="px-4 py-3.5 rounded-xl glass-panel text-slate-300 hover:text-white transition-all text-sm flex items-center gap-2" title="Download Resume PDF">
+                                <i class="fa-solid fa-file-arrow-down text-cyan-400"></i> CV
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 3D Interactive Hover Hero Card -->
+                    <div class="md:col-span-5 tilt-card-wrapper">
+                        <div id="hero-tilt-card" class="tilt-card glass-panel p-6 rounded-2xl border border-slate-700/50 shadow-2xl relative overflow-hidden group">
+                            <!-- Background Accent Glow -->
+                            <div class="absolute -top-12 -right-12 w-40 h-40 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none group-hover:bg-purple-500/30 transition-all"></div>
+
+                            <div class="flex items-center justify-between pb-6 border-b border-slate-800">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 rounded-full bg-slate-800 p-0.5 border border-cyan-400/40 overflow-hidden">
+                                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" alt="Alex Vance" class="w-full h-full object-cover rounded-full">
+                                    </div>
+                                    <div>
+                                        <h2 class="font-bold text-sm text-slate-100">Alex Vance</h2>
+                                        <p class="text-xs text-slate-400">SF / Remote</p>
+                                    </div>
+                                </div>
+                                <span class="px-2.5 py-1 rounded-md bg-purple-500/10 text-purple-400 font-mono text-[10px] border border-purple-500/30">v2026.4</span>
+                            </div>
+
+                            <div class="py-6 space-y-4 font-mono text-xs">
+                                <div class="flex justify-between text-slate-400">
+                                    <span>// Primary Tech</span>
+                                    <span class="text-cyan-400">TypeScript, Rust, React</span>
+                                </div>
+                                <div class="flex justify-between text-slate-400">
+                                    <span>// Cloud Infrastructure</span>
+                                    <span class="text-emerald-400">AWS, Kubernetes</span>
+                                </div>
+                                <div class="flex justify-between text-slate-400">
+                                    <span>// Design Systems</span>
+                                    <span class="text-purple-400">Figma, Tailwind, 3D</span>
+                                </div>
+                            </div>
+
+                            <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 font-mono text-[11px] text-slate-300 flex items-center justify-between">
+                                <span class="text-slate-500">$ status --check</span>
+                                <span class="text-emerald-400 font-semibold"><i class="fa-solid fa-check-circle"></i> 100% Operational</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- SECTION 2: SKILL MATRIX -->
+            <section id="skills" class="space-y-8">
+                <div>
+                    <h2 class="text-xs font-mono text-cyan-400 tracking-wider uppercase mb-2">// 01. Tech Matrix</h2>
+                    <h3 class="text-3xl font-bold">Skills & Proficiencies</h3>
+                </div>
+
+                <!-- Skill Filter Tabs -->
+                <div class="flex flex-wrap gap-2 pb-2">
+                    <button onclick="filterSkills('all')" class="skill-tab active px-4 py-2 rounded-xl text-xs font-medium glass-panel border-cyan-500/50 text-cyan-400 transition-all">All Capabilities</button>
+                    <button onclick="filterSkills('frontend')" class="skill-tab px-4 py-2 rounded-xl text-xs font-medium glass-panel text-slate-400 hover:text-white transition-all">Frontend Engineering</button>
+                    <button onclick="filterSkills('backend')" class="skill-tab px-4 py-2 rounded-xl text-xs font-medium glass-panel text-slate-400 hover:text-white transition-all">Backend & Cloud</button>
+                    <button onclick="filterSkills('design')" class="skill-tab px-4 py-2 rounded-xl text-xs font-medium glass-panel text-slate-400 hover:text-white transition-all">UI/UX & Creative</button>
+                    <button onclick="filterSkills('tools')" class="skill-tab px-4 py-2 rounded-xl text-xs font-medium glass-panel text-slate-400 hover:text-white transition-all">Tools & DevOps</button>
+                </div>
+
+                <!-- Skill Grid -->
+                <div id="skills-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Dynamic rendering in JS -->
+                </div>
+            </section>
+
+
+            <!-- SECTION 3: PROJECTS SHOWCASE -->
+            <section id="projects" class="space-y-8">
+                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                    <div>
+                        <h2 class="text-xs font-mono text-cyan-400 tracking-wider uppercase mb-2">// 02. Selected Work</h2>
+                        <h3 class="text-3xl font-bold">Featured Projects</h3>
+                    </div>
+
+                    <!-- Project Filters -->
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="filterProjects('all')" class="proj-tab active px-3.5 py-1.5 rounded-lg text-xs font-medium bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 transition">All</button>
+                        <button onclick="filterProjects('web')" class="proj-tab px-3.5 py-1.5 rounded-lg text-xs font-medium glass-panel text-slate-400 hover:text-white transition">Web Apps</button>
+                        <button onclick="filterProjects('mobile')" class="proj-tab px-3.5 py-1.5 rounded-lg text-xs font-medium glass-panel text-slate-400 hover:text-white transition">Mobile</button>
+                        <button onclick="filterProjects('ui')" class="proj-tab px-3.5 py-1.5 rounded-lg text-xs font-medium glass-panel text-slate-400 hover:text-white transition">UI Systems</button>
+                    </div>
+                </div>
+
+                <!-- Projects Cards Grid -->
+                <div id="projects-grid" class="grid md:grid-cols-2 gap-6">
+                    <!-- Project Cards generated dynamically in JS -->
+                </div>
+            </section>
+
+
+            <!-- SECTION 4: TIMELINE / EXPERIENCE -->
+            <section id="experience" class="space-y-8">
+                <div>
+                    <h2 class="text-xs font-mono text-cyan-400 tracking-wider uppercase mb-2">// 03. Track Record</h2>
+                    <h3 class="text-3xl font-bold">Career & Milestones</h3>
+                </div>
+
+                <!-- Interactive Timeline Container -->
+                <div class="relative pl-6 sm:pl-8 border-l-2 border-slate-800 space-y-8">
+                    
+                    <!-- Item 1 -->
+                    <div class="relative group">
+                        <div class="absolute -left-[31px] sm:-left-[39px] top-1.5 w-4 h-4 rounded-full bg-slate-900 border-2 border-cyan-400 group-hover:bg-cyan-400 transition-all"></div>
+                        <div class="glass-panel p-6 rounded-2xl glass-panel-hover space-y-3">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <h4 class="font-bold text-lg text-slate-100">Principal Staff Architect</h4>
+                                <span class="px-2.5 py-1 rounded-md bg-cyan-500/10 text-cyan-400 font-mono text-xs">2023 — Present</span>
+                            </div>
+                            <p class="text-sm font-medium text-slate-400">Nexus Cloud Systems Inc. • Full-time</p>
+                            <p class="text-slate-300 text-sm leading-relaxed">
+                                Spearheaded the migration of legacy monolith to micro-frontend architecture serving 2.5M daily active users. Reduced page load times by 42% and cloud hosting costs by $180k annually.
+                            </p>
+                            <div class="pt-2 flex flex-wrap gap-2 text-xs font-mono text-slate-400">
+                                <span class="px-2 py-1 rounded bg-slate-800/80">React</span>
+                                <span class="px-2 py-1 rounded bg-slate-800/80">Rust</span>
+                                <span class="px-2 py-1 rounded bg-slate-800/80">AWS Lambda</span>
+                                <span class="px-2 py-1 rounded bg-slate-800/80">GraphQL</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Item 2 -->
+                    <div class="relative group">
+                        <div class="absolute -left-[31px] sm:-left-[39px] top-1.5 w-4 h-4 rounded-full bg-slate-900 border-2 border-purple-500 group-hover:bg-purple-500 transition-all"></div>
+                        <div class="glass-panel p-6 rounded-2xl glass-panel-hover space-y-3">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <h4 class="font-bold text-lg text-slate-100">Senior UI/UX Engineer</h4>
+                                <span class="px-2.5 py-1 rounded-md bg-purple-500/10 text-purple-400 font-mono text-xs">2020 — 2023</span>
+                            </div>
+                            <p class="text-sm font-medium text-slate-400">Hyperion Design Lab • San Francisco</p>
+                            <p class="text-slate-300 text-sm leading-relaxed">
+                                Directed a team of 6 designers and engineers creating enterprise design systems. Developed WebGL 3D asset pipeline for web configurators.
+                            </p>
+                            <div class="pt-2 flex flex-wrap gap-2 text-xs font-mono text-slate-400">
+                                <span class="px-2 py-1 rounded bg-slate-800/80">TypeScript</span>
+                                <span class="px-2 py-1 rounded bg-slate-800/80">Three.js</span>
+                                <span class="px-2 py-1 rounded bg-slate-800/80">Figma API</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Item 3 -->
+                    <div class="relative group">
+                        <div class="absolute -left-[31px] sm:-left-[39px] top-1.5 w-4 h-4 rounded-full bg-slate-900 border-2 border-emerald-400 group-hover:bg-emerald-400 transition-all"></div>
+                        <div class="glass-panel p-6 rounded-2xl glass-panel-hover space-y-3">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <h4 class="font-bold text-lg text-slate-100">B.S. Computer Science & Interactive Media</h4>
+                                <span class="px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 font-mono text-xs">2016 — 2020</span>
+                            </div>
+                            <p class="text-sm font-medium text-slate-400">University of California, Berkeley</p>
+                            <p class="text-slate-300 text-sm leading-relaxed">
+                                Graduated Magna Cum Laude. Specialization in Computer Graphics, Distributed Algorithms, and Human-Computer Interaction (HCI).
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- SECTION 5: INTERACTIVE TERMINAL PLAYGROUND -->
+            <section id="terminal" class="space-y-6">
+                <div>
+                    <h2 class="text-xs font-mono text-cyan-400 tracking-wider uppercase mb-2">// 04. Interactive Playground</h2>
+                    <h3 class="text-3xl font-bold">CLI Shell Terminal</h3>
+                    <p class="text-sm text-slate-400 mt-1">Prefer keyboard navigation? Type commands to query information directly.</p>
+                </div>
+
+                <div class="glass-panel rounded-2xl overflow-hidden border border-slate-700/60 font-mono text-xs shadow-2xl terminal-glow">
+                    <!-- Terminal Top Bar -->
+                    <div class="bg-slate-900/90 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
+                            <span class="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
+                            <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
+                            <span class="ml-2 text-slate-400 text-[11px]">alex@vance-portfolio: ~ (bash)</span>
+                        </div>
+                        <span class="text-slate-500 text-[10px]">Type 'help' for commands</span>
+                    </div>
+
+                    <!-- Terminal Output Window -->
+                    <div id="terminal-output" class="p-4 h-64 overflow-y-auto space-y-2 text-slate-300 bg-slate-950/80 leading-relaxed">
+                        <div>Welcome to VanceOS v2.4 interactive shell. Type <span class="text-cyan-400 font-bold">'help'</span> to see available commands.</div>
+                    </div>
+
+                    <!-- Terminal Prompt Input Line -->
+                    <div class="p-3 bg-slate-900/50 border-t border-slate-800/80 flex items-center gap-2">
+                        <span class="text-emerald-400 font-bold">visitor@vance-portfolio:~$</span>
+                        <input type="text" id="terminal-input" class="flex-1 bg-transparent outline-none text-cyan-300 font-mono placeholder-slate-600" placeholder="Type a command (e.g. skills, projects)..." autocomplete="off">
+                        <button id="terminal-submit" class="px-3 py-1 bg-cyan-500/20 text-cyan-400 rounded hover:bg-cyan-500/30 text-[11px] transition">Execute</button>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- SECTION 6: TESTIMONIALS / ENDORSEMENTS -->
+            <section id="testimonials" class="space-y-8">
+                <div>
+                    <h2 class="text-xs font-mono text-cyan-400 tracking-wider uppercase mb-2">// 05. Social Proof</h2>
+                    <h3 class="text-3xl font-bold">Client & Peer Endorsements</h3>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Testimonial 1 -->
+                    <div class="glass-panel p-6 rounded-2xl glass-panel-hover flex flex-col justify-between space-y-4">
+                        <div class="space-y-3">
+                            <div class="flex text-amber-400 text-xs gap-1">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="text-slate-300 text-sm leading-relaxed italic">
+                                "Alex transformed our chaotic codebase into a streamlined, high-speed machine. His architectural foresight saved us months of rework and millions in cloud overhead."
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-3 pt-2 border-t border-slate-800">
+                            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80" alt="Elena Rostova" class="w-10 h-10 rounded-full object-cover border border-cyan-400/40">
+                            <div>
+                                <h4 class="font-bold text-xs text-slate-100">Elena Rostova</h4>
+                                <p class="text-[11px] text-slate-400">VP of Engineering, CloudScale</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Testimonial 2 -->
+                    <div class="glass-panel p-6 rounded-2xl glass-panel-hover flex flex-col justify-between space-y-4">
+                        <div class="space-y-3">
+                            <div class="flex text-amber-400 text-xs gap-1">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="text-slate-300 text-sm leading-relaxed italic">
+                                "Rarely do you find an engineer who possesses both deep technical expertise and an exceptional eye for design aesthetics. Alex is that rare 1%."
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-3 pt-2 border-t border-slate-800">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" alt="Marcus Thorne" class="w-10 h-10 rounded-full object-cover border border-purple-400/40">
+                            <div>
+                                <h4 class="font-bold text-xs text-slate-100">Marcus Thorne</h4>
+                                <p class="text-[11px] text-slate-400">Founder & CEO, StudioAura</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- SECTION 7: CONTACT FORM & SOCIALS -->
+            <section id="contact" class="space-y-8">
+                <div>
+                    <h2 class="text-xs font-mono text-cyan-400 tracking-wider uppercase mb-2">// 06. Initiate Connection</h2>
+                    <h3 class="text-3xl font-bold">Let's Build Something Legendary</h3>
+                </div>
+
+                <div class="grid md:grid-cols-12 gap-8">
+                    <!-- Contact Details Panel -->
+                    <div class="md:col-span-5 space-y-6">
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            Have an ambitious project in mind or an open role? Reach out directly or drop a message on the form.
+                        </p>
+
+                        <div class="space-y-4">
+                            <!-- Copy Email Box -->
+                            <div class="glass-panel p-4 rounded-xl flex items-center justify-between gap-3">
+                                <div class="flex items-center gap-3 overflow-hidden">
+                                    <div class="w-10 h-10 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center shrink-0">
+                                        <i class="fa-solid fa-envelope"></i>
+                                    </div>
+                                    <div class="truncate">
+                                        <p class="text-[11px] text-slate-400 uppercase tracking-wider font-mono">Email Address</p>
+                                        <p id="email-text" class="text-xs font-medium font-mono text-slate-200">alex.vance.dev@gmail.com</p>
+                                    </div>
+                                </div>
+                                <button onclick="copyEmail()" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-cyan-500/20 hover:text-cyan-400 text-xs text-slate-300 font-mono transition shrink-0">
+                                    <i class="fa-solid fa-copy"></i> Copy
+                                </button>
+                            </div>
+
+                            <!-- Location Box -->
+                            <div class="glass-panel p-4 rounded-xl flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[11px] text-slate-400 uppercase tracking-wider font-mono">Primary Location</p>
+                                    <p class="text-xs font-medium text-slate-200">San Francisco, CA (PST / UTC-8)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Social Buttons -->
+                        <div class="pt-2 flex items-center gap-3">
+                            <a href="https://github.com" target="_blank" rel="noopener" class="w-11 h-11 rounded-xl glass-panel flex items-center justify-center text-slate-300 hover:text-cyan-400 hover:scale-110 transition-all">
+                                <i class="fa-brands fa-github text-lg"></i>
+                            </a>
+                            <a href="https://linkedin.com" target="_blank" rel="noopener" class="w-11 h-11 rounded-xl glass-panel flex items-center justify-center text-slate-300 hover:text-cyan-400 hover:scale-110 transition-all">
+                                <i class="fa-brands fa-linkedin-in text-lg"></i>
+                            </a>
+                            <a href="https://x.com" target="_blank" rel="noopener" class="w-11 h-11 rounded-xl glass-panel flex items-center justify-center text-slate-300 hover:text-cyan-400 hover:scale-110 transition-all">
+                                <i class="fa-brands fa-x-twitter text-lg"></i>
+                            </a>
+                            <a href="https://dribbble.com" target="_blank" rel="noopener" class="w-11 h-11 rounded-xl glass-panel flex items-center justify-center text-slate-300 hover:text-cyan-400 hover:scale-110 transition-all">
+                                <i class="fa-brands fa-dribbble text-lg"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Contact Form -->
+                    <div class="md:col-span-7">
+                        <form id="contact-form" onsubmit="handleFormSubmit(event)" class="glass-panel p-6 rounded-2xl space-y-4">
+                            <div>
+                                <label class="block text-xs font-mono text-slate-400 mb-1">YOUR NAME</label>
+                                <input type="text" id="form-name" required class="w-full bg-slate-900/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-cyan-400 transition" placeholder="Satoshi Nakamoto">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-mono text-slate-400 mb-1">EMAIL ADDRESS</label>
+                                <input type="email" id="form-email" required class="w-full bg-slate-900/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-cyan-400 transition" placeholder="satoshi@bitcoin.org">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-mono text-slate-400 mb-1">MESSAGE</label>
+                                <textarea id="form-message" rows="4" required class="w-full bg-slate-900/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-cyan-400 transition" placeholder="Tell me about your project scope, timeline, and goals..."></textarea>
+                            </div>
+
+                            <button type="submit" id="form-submit-btn" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-medium text-sm hover:shadow-lg hover:shadow-cyan-500/25 transition-all flex items-center justify-center gap-2">
+                                <span>Send Message</span>
+                                <i class="fa-solid fa-paper-plane text-xs"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="pt-12 border-t border-slate-800/80 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p>© 2026 Alex Vance. Built with HTML, Tailwind CSS & Vanilla JS.</p>
+                <div class="flex items-center gap-4">
+                    <span class="font-mono text-[11px] text-cyan-500">SYSTEM: ALL SERVICES NORMAL</span>
+                </div>
+            </footer>
+
+        </main>
+    </div>
+
+    <!-- BACK TO TOP BUTTON WITH PROGRESS RING -->
+    <button id="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-6 right-6 w-12 h-12 rounded-full glass-panel border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-xl opacity-0 pointer-events-none transition-all duration-300 z-40 hover:scale-110" aria-label="Back to Top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <!-- PROJECT DETAIL MODAL DIALOG -->
+    <div id="project-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 opacity-0 pointer-events-none transition-opacity duration-300 flex items-center justify-center p-4">
+        <div class="glass-panel max-w-2xl w-full max-h-[90vh] overflow-y-auto rounded-2xl border border-slate-700/80 p-6 md:p-8 space-y-6 relative transform scale-95 transition-transform duration-300" id="modal-card">
+            
+            <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <img id="modal-img" src="" alt="Project Banner" class="w-full h-56 object-cover rounded-xl border border-slate-800">
+
+            <div class="space-y-2">
+                <span id="modal-category" class="px-2.5 py-1 rounded-md bg-cyan-500/10 text-cyan-400 font-mono text-xs border border-cyan-500/20">Category</span>
+                <h3 id="modal-title" class="text-2xl font-bold text-slate-100">Project Title</h3>
+            </div>
+
+            <p id="modal-desc" class="text-slate-300 text-sm leading-relaxed">
+                Detailed description goes here.
+            </p>
+
+            <div class="space-y-2">
+                <h4 class="text-xs font-mono text-slate-400 uppercase tracking-wider">Key Architectural Features</h4>
+                <ul id="modal-features" class="list-disc list-inside text-xs text-slate-300 space-y-1">
+                    <!-- Populated dynamically -->
+                </ul>
+            </div>
+
+            <div class="space-y-2">
+                <h4 class="text-xs font-mono text-slate-400 uppercase tracking-wider">Technologies Used</h4>
+                <div id="modal-tags" class="flex flex-wrap gap-2 text-xs font-mono">
+                    <!-- Tags populated dynamically -->
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-800 flex items-center gap-4">
+                <a id="modal-live-link" href="#" target="_blank" class="px-5 py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs hover:bg-cyan-400 transition flex items-center gap-2">
+                    <i class="fa-solid fa-globe"></i> Live Preview
+                </a>
+                <a id="modal-github-link" href="#" target="_blank" class="px-5 py-2.5 rounded-xl bg-slate-800 text-slate-200 font-medium text-xs hover:bg-slate-700 transition flex items-center gap-2">
+                    <i class="fa-brands fa-github"></i> Repository
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast" class="fixed bottom-6 left-6 z-50 glass-panel px-4 py-3 rounded-xl border border-emerald-500/40 text-emerald-400 text-xs font-mono flex items-center gap-3 translate-y-20 opacity-0 transition-all duration-300 shadow-xl">
+        <i class="fa-solid fa-circle-check text-base"></i>
+        <span id="toast-message">Action successful!</span>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /* ==========================================================================
+           1. DATA STORES (Skills & Projects)
+           ========================================================================== */
+        const SKILLS_DATA = [
+            { name: "React & Next.js", category: "frontend", level: 95, icon: "fa-brands fa-react", color: "text-cyan-400" },
+            { name: "TypeScript", category: "frontend", level: 92, icon: "fa-code", color: "text-blue-400" },
+            { name: "Tailwind CSS", category: "frontend", level: 98, icon: "fa-css3-alt", color: "text-teal-400" },
+            { name: "Three.js / WebGL", category: "frontend", level: 80, icon: "fa-cube", color: "text-purple-400" },
+            { name: "Node.js & Express", category: "backend", level: 88, icon: "fa-brands fa-node-js", color: "text-emerald-400" },
+            { name: "Rust", category: "backend", level: 75, icon: "fa-gear", color: "text-amber-500" },
+            { name: "PostgreSQL / Redis", category: "backend", level: 85, icon: "fa-database", color: "text-blue-500" },
+            { name: "GraphQL APIs", category: "backend", level: 90, icon: "fa-diagram-project", color: "text-pink-400" },
+            { name: "Figma & Design Systems", category: "design", level: 94, icon: "fa-brands fa-figma", color: "text-purple-400" },
+            { name: "UI Architecture & Prototyping", category: "design", level: 92, icon: "fa-wand-magic-sparkles", color: "text-cyan-300" },
+            { name: "Docker & Kubernetes", category: "tools", level: 82, icon: "fa-brands fa-docker", color: "text-sky-400" },
+            { name: "CI/CD & AWS Infrastructure", category: "tools", level: 86, icon: "fa-brands fa-aws", color: "text-amber-400" }
+        ];
+
+        const PROJECTS_DATA = [
+            {
+                id: "p1",
+                title: "Aura3D — Cloud Rendering Engine",
+                category: "web",
+                categoryName: "Web Application",
+                image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80",
+                description: "A web-based interactive 3D scene builder and browser cloud renderer supporting GLTF asset manipulation, dynamic lighting, and real-time collaboration via WebSockets.",
+                features: [
+                    "WebGPU and WebGL accelerated rendering pipeline",
+                    "Real-time multiplayer editing using CRDTs & WebSockets",
+                    "Export scenes to custom React Three Fiber components"
+                ],
+                tags: ["TypeScript", "Three.js", "WebGPU", "WebSockets", "Node.js"],
+                liveUrl: "https://example.com",
+                githubUrl: "https://github.com"
+            },
+            {
+                id: "p2",
+                title: "CryptoPulse — Algorithmic Terminal",
+                category: "web",
+                categoryName: "Web Application",
+                image: "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?auto=format&fit=crop&w=800&q=80",
+                description: "High-frequency crypto market surveillance platform with sub-millisecond chart feeds, order book depth visualization, and custom strategy backtesting.",
+                features: [
+                    "Sub-10ms latency WebSocket market data streams",
+                    "Custom Canvas2D canvas charting library",
+                    "Automated signal notification engine via Telegram API"
+                ],
+                tags: ["React", "Rust", "WebSockets", "TailwindCSS"],
+                liveUrl: "https://example.com",
+                githubUrl: "https://github.com"
+            },
+            {
+                id: "p3",
+                title: "Vortex Mobile Wallet",
+                category: "mobile",
+                categoryName: "Mobile App",
+                image: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=800&q=80",
+                description: "Cross-platform biometrically secured decentralized crypto wallet with inline DEX aggregator swaps and NFT gallery viewing.",
+                features: [
+                    "Biometric hardware enclave key management",
+                    "Zero-knowledge state proofs for instant settlement",
+                    "Offline transaction signing capabilities"
+                ],
+                tags: ["React Native", "TypeScript", "Ethers.js", "Tailwind"],
+                liveUrl: "https://example.com",
+                githubUrl: "https://github.com"
+            },
+            {
+                id: "p4",
+                title: "Chronos Design System",
+                category: "ui",
+                categoryName: "UI System",
+                image: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=800&q=80",
+                description: "Enterprise-grade design system and component library engineered for accessible, high-contrast fintech interfaces.",
+                features: [
+                    "Full WCAG 2.1 AAA accessibility compliance",
+                    "Automatic dark/light/high-contrast design tokens",
+                    "Storybook documentation with live code playground"
+                ],
+                tags: ["Figma", "TailwindCSS", "Storybook", "Web Components"],
+                liveUrl: "https://example.com",
+                githubUrl: "https://github.com"
+            }
+        ];
+
+
+        /* ==========================================================================
+           2. PARTICLE MESH CANVAS ANIMATION
+           ========================================================================== */
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.4;
+                this.vy = (Math.random() - 0.5) * 0.4;
+                this.radius = Math.random() * 1.5 + 0.5;
+                this.alpha = Math.random() * 0.5 + 0.2;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                    this.reset();
+                }
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(6, 182, 212, ${this.alpha})`;
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 50; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < 120) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(168, 85, 247, ${0.15 * (1 - dist / 120)})`;
+                        ctx.lineWidth = 0.6;
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+
+        /* ==========================================================================
+           3. DYNAMIC TYPING TEXT EFFECT
+           ========================================================================== */
+        const roles = ["Full-Stack Architect", "UI/UX Designer", "Creative Technologist", "System Engineer"];
+        let roleIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        const typingSpeed = 100;
+        const typingTextEl = document.getElementById('typing-text');
+
+        function typeEffect() {
+            const currentRole = roles[roleIndex];
+            if (isDeleting) {
+                typingTextEl.textContent = currentRole.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                typingTextEl.textContent = currentRole.substring(0, charIndex + 1);
+                charIndex++;
+            }
+
+            let delta = isDeleting ? typingSpeed / 2 : typingSpeed;
+
+            if (!isDeleting && charIndex === currentRole.length) {
+                delta = 2000; // Pause at end
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                roleIndex = (roleIndex + 1) % roles.length;
+                delta = 500;
+            }
+
+            setTimeout(typeEffect, delta);
+        }
+        typeEffect();
+
+
+        /* ==========================================================================
+           4. SKILLS & PROJECTS RENDERERS & FILTERS
+           ========================================================================== */
+        function renderSkills(filter = 'all') {
+            const container = document.getElementById('skills-grid');
+            container.innerHTML = '';
+
+            const filtered = filter === 'all' ? SKILLS_DATA : SKILLS_DATA.filter(s => s.category === filter);
+
+            filtered.forEach(s => {
+                const card = document.createElement('div');
+                card.className = 'glass-panel p-4 rounded-xl glass-panel-hover space-y-3';
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <i class="${s.icon.includes('fa-') ? s.icon : 'fa-solid ' + s.icon} ${s.color} text-base"></i>
+                            <span class="font-medium text-xs text-slate-200">${s.name}</span>
+                        </div>
+                        <span class="text-[11px] font-mono text-cyan-400">${s.level}%</span>
+                    </div>
+                    <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full transition-all duration-1000" style="width: ${s.level}%"></div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterSkills(category) {
+            playSound('click');
+            document.querySelectorAll('.skill-tab').forEach(btn => {
+                btn.classList.remove('border-cyan-500/50', 'text-cyan-400');
+                btn.classList.add('text-slate-400');
+            });
+            event.target.classList.add('border-cyan-500/50', 'text-cyan-400');
+            renderSkills(category);
+        }
+
+        function renderProjects(filter = 'all') {
+            const container = document.getElementById('projects-grid');
+            container.innerHTML = '';
+
+            const filtered = filter === 'all' ? PROJECTS_DATA : PROJECTS_DATA.filter(p => p.category === filter);
+
+            filtered.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'glass-panel rounded-2xl overflow-hidden glass-panel-hover group flex flex-col justify-between';
+                card.innerHTML = `
+                    <div>
+                        <div class="relative overflow-hidden h-48">
+                            <img src="${p.image}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                            <div class="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                                <button onclick="openModal('${p.id}')" class="px-4 py-2 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs shadow-lg hover:bg-cyan-400 transition">
+                                    Quick View
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-5 space-y-3">
+                            <span class="text-[10px] font-mono uppercase tracking-wider text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">${p.categoryName}</span>
+                            <h4 class="font-bold text-base text-slate-100">${p.title}</h4>
+                            <p class="text-xs text-slate-400 line-clamp-2">${p.description}</p>
+                        </div>
+                    </div>
+                    <div class="p-5 pt-0 flex flex-wrap gap-1.5">
+                        ${p.tags.map(t => `<span class="px-2 py-0.5 rounded bg-slate-800 text-[10px] font-mono text-slate-300">${t}</span>`).join('')}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterProjects(cat) {
+            playSound('click');
+            document.querySelectorAll('.proj-tab').forEach(b => {
+                b.classList.remove('bg-cyan-500/10', 'text-cyan-400', 'border', 'border-cyan-500/30');
+                b.classList.add('glass-panel', 'text-slate-400');
+            });
+            event.target.classList.add('bg-cyan-500/10', 'text-cyan-400', 'border', 'border-cyan-500/30');
+            renderProjects(cat);
+        }
+
+
+        /* ==========================================================================
+           5. MODAL DIALOG CONTROLS
+           ========================================================================== */
+        function openModal(id) {
+            playSound('open');
+            const p = PROJECTS_DATA.find(item => item.id === id);
+            if (!p) return;
+
+            document.getElementById('modal-img').src = p.image;
+            document.getElementById('modal-title').textContent = p.title;
+            document.getElementById('modal-category').textContent = p.categoryName;
+            document.getElementById('modal-desc').textContent = p.description;
+
+            const featContainer = document.getElementById('modal-features');
+            featContainer.innerHTML = p.features.map(f => `<li>${f}</li>`).join('');
+
+            const tagsContainer = document.getElementById('modal-tags');
+            tagsContainer.innerHTML = p.tags.map(t => `<span class="px-2.5 py-1 rounded bg-slate-800 text-slate-300">${t}</span>`).join('');
+
+            document.getElementById('modal-live-link').href = p.liveUrl;
+            document.getElementById('modal-github-link').href = p.githubUrl;
+
+            const modal = document.getElementById('project-modal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            document.getElementById('modal-card').classList.remove('scale-95');
+            document.getElementById('modal-card').classList.add('scale-100');
+        }
+
+        function closeModal() {
+            playSound('click');
+            const modal = document.getElementById('project-modal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            document.getElementById('modal-card').classList.remove('scale-100');
+            document.getElementById('modal-card').classList.add('scale-95');
+        }
+
+
+        /* ==========================================================================
+           6. INTERACTIVE CLI TERMINAL
+           ========================================================================== */
+        const terminalInput = document.getElementById('terminal-input');
+        const terminalOutput = document.getElementById('terminal-output');
+        const terminalSubmit = document.getElementById('terminal-submit');
+
+        const COMMANDS = {
+            help: "Available commands:\n- <span class='text-cyan-400'>about</span>: Brief professional background\n- <span class='text-cyan-400'>skills</span>: Output top technical competencies\n- <span class='text-cyan-400'>projects</span>: List featured work\n- <span class='text-cyan-400'>contact</span>: Show contact details\n- <span class='text-cyan-400'>clear</span>: Clear terminal console history\n- <span class='text-cyan-400'>theme</span>: Toggle dark/light modes",
+            about: "Alex Vance is a Senior Full-Stack Architect with 8+ years building enterprise applications, interactive WebGL tools, and design systems.",
+            skills: "Primary Stack:\n• Frontend: TypeScript, React, Next.js, Tailwind, WebGL\n• Backend: Node.js, Rust, PostgreSQL, GraphQL\n• DevOps: Docker, Kubernetes, AWS Lambda",
+            projects: "Featured Projects:\n1. Aura3D — Cloud Rendering Engine\n2. CryptoPulse — Algorithmic Terminal\n3. Vortex Mobile Wallet\n4. Chronos Design System",
+            contact: "Direct Email: alex.vance.dev@gmail.com\nLinkedIn: linkedin.com/in/alexvance\nGitHub: github.com/alexvance",
+            clear: "CLEAR",
+            theme: "Use the top header theme buttons or type 'theme dark' / 'theme light'."
+        };
+
+        function executeCommand() {
+            const cmd = terminalInput.value.trim().toLowerCase();
+            if (!cmd) return;
+
+            playSound('terminal');
+
+            // Print user command prompt
+            const userLine = document.createElement('div');
+            userLine.innerHTML = `<span class="text-emerald-400">visitor@vance-portfolio:~$</span> <span class="text-slate-100">${cmd}</span>`;
+            terminalOutput.appendChild(userLine);
+
+            // Handle special clear command
+            if (cmd === 'clear') {
+                terminalOutput.innerHTML = '';
+                terminalInput.value = '';
+                return;
+            }
+
+            // Print command response
+            const resLine = document.createElement('div');
+            resLine.className = "text-slate-300 pl-2 border-l-2 border-cyan-500/50 whitespace-pre-wrap";
+            resLine.innerHTML = COMMANDS[cmd] || `<span class="text-red-400">Command not recognized: '${cmd}'. Type 'help' for command list.</span>`;
+            terminalOutput.appendChild(resLine);
+
+            terminalInput.value = '';
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        }
+
+        terminalSubmit.addEventListener('click', executeCommand);
+        terminalInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') executeCommand();
+        });
+
+
+        /* ==========================================================================
+           7. AUDIO SYNTHESIS & SOUND TOGGLE (WEB AUDIO API)
+           ========================================================================== */
+        let soundEnabled = false;
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'click') {
+                    osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.05);
+                    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.05);
+                } else if (type === 'terminal') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.03);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.03);
+                } else if (type === 'open') {
+                    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.15);
+                }
+            } catch (e) {}
+        }
+
+        document.getElementById('sound-toggle').addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('sound-icon');
+            if (soundEnabled) {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                icon.className = 'fa-solid fa-volume-high text-cyan-400';
+                showToast("UI sound effects enabled");
+                playSound('click');
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-slate-400';
+                showToast("UI sound effects muted");
+            }
+        });
+
+
+        /* ==========================================================================
+           8. THEME & UTILITIES (Scroll progress, Copy, Toasts, Form)
+           ========================================================================== */
+        function setTheme(theme) {
+            playSound('click');
+            document.documentElement.classList.remove('dark', 'light', 'contrast');
+            document.documentElement.classList.add(theme);
+            showToast(`Theme switched to ${theme.toUpperCase()}`);
+        }
+
+        // 3D Tilt Card Interaction
+        const tiltCard = document.getElementById('hero-tilt-card');
+        if (tiltCard) {
+            tiltCard.addEventListener('mousemove', (e) => {
+                const rect = tiltCard.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                tiltCard.style.transform = `rotateX(${-y / 15}deg) rotateY(${x / 15}deg)`;
+            });
+            tiltCard.addEventListener('mouseleave', () => {
+                tiltCard.style.transform = 'rotateX(0deg) rotateY(0deg)';
+            });
+        }
+
+        // Scroll Progress & Back to Top Button
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('scroll-progress').style.width = scrolled + '%';
+
+            const backToTop = document.getElementById('back-to-top');
+            if (winScroll > 400) {
+                backToTop.classList.remove('opacity-0', 'pointer-events-none');
+            } else {
+                backToTop.classList.add('opacity-0', 'pointer-events-none');
+            }
+        });
+
+        // Copy Email Button Functionality
+        function copyEmail() {
+            playSound('click');
+            const email = document.getElementById('email-text').innerText;
+            const tempInput = document.createElement('input');
+            tempInput.value = email;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            showToast("Email address copied to clipboard!");
+        }
+
+        // Resume Download Simulation
+        function downloadResume() {
+            playSound('click');
+            showToast("Downloading Alex_Vance_Resume_2026.pdf...");
+        }
+
+        // Contact Form Submit Handler
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            playSound('click');
+            const name = document.getElementById('form-name').value;
+            showToast(`Thank you, ${name}! Message sent successfully.`);
+            document.getElementById('contact-form').reset();
+        }
+
+        // Toast Helper
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Mobile Menu Toggle
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+            playSound('click');
+            const menu = document.getElementById('nav-menu');
+            menu.classList.toggle('hidden');
+            menu.classList.toggle('flex');
+        });
+
+        // INITIALIZATION
+        window.onload = function() {
+            renderSkills();
+            renderProjects();
+        };
+    </script>
+</body>
+</html>
